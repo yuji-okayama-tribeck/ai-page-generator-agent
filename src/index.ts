@@ -5,12 +5,6 @@ import { createPinoLogger } from "@voltagent/logger";
 import { openai } from "@ai-sdk/openai";
 import { honoServer } from "@voltagent/server-hono";
 import { expenseApprovalWorkflow } from "./workflows";
-import {
-  startPlaywrightSession,
-  closePlaywrightSession,
-  getPlaywrightSessionStatus,
-  navigateToUrl
-} from "./tools";
 
 // Create a logger instance
 const logger = createPinoLogger({
@@ -39,7 +33,7 @@ const mcpConfig = new MCPConfiguration({
 
 const agent = new Agent({
   name: "agent",
-  instructions: "A helpful assistant that can check weather, perform browser automation tasks using Playwright, and help with various tasks",
+  instructions: "playwright-mcpを用いてブラウザ操作を行う。",
   model: openai("gpt-4o-mini"),
   tools: [
     ...(await mcpConfig.getTools())

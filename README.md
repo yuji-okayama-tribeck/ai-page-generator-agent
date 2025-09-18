@@ -62,10 +62,85 @@ npm start
 This VoltAgent application includes:
 
 - **AI Agent**: Powered by OpenAI (GPT-4o-mini)
+- **Browser Automation**: Playwright MCP integration for web scraping and automation
 - **Workflows**: Pre-configured expense approval workflow
 - **Memory**: Built-in conversation history
-- **Tools**: Extensible tool system
+- **Tools**: Extensible tool system including weather and browser automation
 - **Type Safety**: Full TypeScript support
+
+## 🌐 Playwright MCP Integration
+
+This agent includes Playwright MCP (Model Context Protocol) for browser automation tasks:
+
+### Features
+- **Web Navigation**: Navigate to websites and interact with pages
+- **Element Interaction**: Click, type, and extract data from web elements
+- **Screenshot Capture**: Take screenshots of web pages
+- **Form Automation**: Fill out and submit forms automatically
+- **Mobile Device Emulation**: Test on different device viewports
+
+### Available Tools
+
+#### Browser Session Management
+- `startPlaywrightSession` - Start a new browser automation session
+- `closePlaywrightSession` - Close the active browser session
+- `getPlaywrightSessionStatus` - Check if a session is currently active
+
+#### Navigation and Interaction
+- `navigateToUrl` - Navigate to a specific URL
+- Plus all Playwright MCP tools for page interaction
+
+### Configuration
+
+The Playwright MCP server is configured via `playwright-mcp.config.json`:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  },
+  "browserOptions": {
+    "headless": false,
+    "viewport": { "width": 1280, "height": 720 },
+    "ignoreHTTPSErrors": true
+  },
+  "contextOptions": {
+    "acceptDownloads": true,
+    "permissions": ["geolocation", "clipboard-read", "clipboard-write"]
+  }
+}
+```
+
+### Usage Examples
+
+#### Start a Browser Session
+```typescript
+// Start a headed browser session
+await startPlaywrightSession({
+  headless: false,
+  viewport: { width: 1920, height: 1080 },
+  timeout: 10000
+});
+
+// Navigate to a website
+await navigateToUrl({ url: "https://example.com" });
+```
+
+#### Mobile Device Emulation
+```typescript
+await startPlaywrightSession({
+  device: "iPhone 15",
+  headless: false
+});
+```
+
+#### Prerequisites for Playwright MCP
+- Node.js 18+ (already required for VoltAgent)
+- Playwright browsers will be automatically installed when first used
+- No additional setup required - works out of the box!
 
 ## 🔍 VoltOps Platform
 
@@ -99,16 +174,18 @@ For production environments, configure VoltOpsClient:
 ```
 agent/
 ├── src/
-│   ├── index.ts          # Main agent configuration
-│   ├── tools/            # Custom tools
-│   │   ├── index.ts      # Tool exports
-│   │   └── weather.ts    # Weather tool example
-│   └── workflows/        # Workflow definitions
-│       └── index.ts      # Expense approval workflow
-├── dist/                 # Compiled output (after build)
-├── .env                  # Environment variables
-├── .voltagent/           # Agent memory storage
-├── Dockerfile            # Production deployment
+│   ├── index.ts              # Main agent configuration
+│   ├── tools/                # Custom tools
+│   │   ├── index.ts          # Tool exports
+│   │   ├── weather.ts        # Weather tool example
+│   │   └── playwright.ts     # Playwright MCP tools
+│   └── workflows/            # Workflow definitions
+│       └── index.ts          # Expense approval workflow
+├── dist/                     # Compiled output (after build)
+├── .env                      # Environment variables
+├── .voltagent/               # Agent memory storage
+├── playwright-mcp.config.json # Playwright MCP configuration
+├── Dockerfile                # Production deployment
 ├── package.json
 └── tsconfig.json
 ```

@@ -1,11 +1,16 @@
 import "dotenv/config";
-import { VoltAgent, VoltOpsClient, Agent, Memory } from "@voltagent/core";
+import { VoltAgent, VoltOpsClient, Agent, Memory, MCPConfiguration } from "@voltagent/core";
 import { LibSQLMemoryAdapter } from "@voltagent/libsql";
 import { createPinoLogger } from "@voltagent/logger";
 import { openai } from "@ai-sdk/openai";
 import { honoServer } from "@voltagent/server-hono";
 import { expenseApprovalWorkflow } from "./workflows";
-import { weatherTool } from "./tools";
+import {
+  startPlaywrightSession,
+  closePlaywrightSession,
+  getPlaywrightSessionStatus,
+  navigateToUrl
+} from "./tools";
 
 // Create a logger instance
 const logger = createPinoLogger({
@@ -21,11 +26,24 @@ const memory = new Memory({
   }),
 });
 
+
+const mcpConfig = new MCPConfiguration({
+  servers: {
+    playwright: {
+      type: "stdio",
+      command: "npx",
+      args: ["@playwright/mcp@latest", "--config", "./playwright-mcp.config.json"]
+    }
+  },
+});
+
 const agent = new Agent({
   name: "agent",
-  instructions: "A helpful assistant that can check weather and help with various tasks",
+  instructions: "A helpful assistant that can check weather, perform browser automation tasks using Playwright, and help with various tasks",
   model: openai("gpt-4o-mini"),
-  tools: [weatherTool],
+  tools: [
+    ...(await mcpConfig.getTools())
+  ],
   memory,
 });
 

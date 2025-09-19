@@ -57,3 +57,27 @@ npm run build
 npm start
 ```
 
+### PlayWright Config
+```
+const mcpConfig = new MCPConfiguration({
+  servers: {
+    playwright: {
+      type: "stdio",
+      command: "npx",
+      args: [
+        "@playwright/mcp",
+        "--headless",           // ヘッドレスモードで実行
+        "--timeout=30000",      // タイムアウト設定（ミリ秒）
+        "--viewport=1920x1080", // ビューポートサイズ
+        "--user-agent=custom",  // カスタムユーザーエージェント
+        "--slow-mo=1000",       // アクション間の遅延（ミリ秒）
+        "--debug",              // デバッグモード
+        "--trace",              // トレース記録
+        "--video",              // ビデオ記録
+        "--screenshot",         // スクリーンショット撮影
+      ]
+    },
+  },
+});
+```
+

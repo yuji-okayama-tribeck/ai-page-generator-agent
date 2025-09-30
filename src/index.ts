@@ -20,26 +20,43 @@ const memory = new Memory({
   }),
 });
 
-
 const mcpConfig = new MCPConfiguration({
   servers: {
-    playwright: {
-      type: "stdio",
-      command: "npx",
-      args: ["@playwright/mcp@latest", "--config", "./playwright-mcp.config.json"]
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest", "--headless"]
     }
   },
 });
 
-const agent = new Agent({
-  name: "agent",
-  instructions: "playwright-mcpを用いてブラウザ操作を行う。",
+const domAnalysisAgent = new Agent({
+  name: "dom-analysis-agent",
+  instructions: `
+  `,
   model: openai("gpt-4o-mini"),
   tools: [
     ...(await mcpConfig.getTools())
   ],
   memory,
 });
+
+const agent = new Agent({
+  name: "agent",
+  instructions: `
+  あなたはウェブサイトのDOM構造を解析する専門エージェントです。
+  ユーザーから提供されたURLへ遷移してください。
+  要素を全て取得し、DOM構造を解析します。
+  回答は日本語で行ってください。
+  `,
+  model: openai("gpt-4o-mini"),
+  tools: [
+    ...(await mcpConfig.getTools())
+  ],
+  memory,
+});
+
+
 
 new VoltAgent({
   agents: {
